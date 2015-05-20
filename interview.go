@@ -57,6 +57,7 @@ func readAnswer(question *Question) string {
 
 func (interview *Interview) getAnswer(question *Question) string {
 	for {
+		interview.displayPrompt(question)
 		answer := interview.ReadAnswer(question)
 
 		// If they left answer blank and there's a default, set to default
@@ -100,9 +101,8 @@ func (interview *Interview) Run() []string {
 	answers := make([]string, len(interview.Questions))
 	for index, question := range interview.Questions {
 		if question.Text != "" {
-			interview.displayPrompt(&question)
 			answer := interview.getAnswer(&question)
-      answers[index] = answer
+			answers[index] = answer
 		}
 	}
 	return answers
