@@ -19,7 +19,8 @@ type Interview struct {
 	// The function to use for error output
 	ShowError func(message string)
 	// The questions in the interview.
-	Questions  []Question
+	Questions []Question
+	// The method to read an answer. Used for testing.
 	ReadAnswer func(question *Question) string
 }
 
