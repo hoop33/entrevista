@@ -29,7 +29,7 @@ func showOutput(message string) {
 }
 
 func showError(message string) {
-	fmt.Print(message)
+	fmt.Println(message)
 }
 
 func (interview *Interview) displayPrompt(question *Question) {
