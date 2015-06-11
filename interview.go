@@ -2,9 +2,12 @@ package entrevista
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
-	"regexp"
+	"reflect"
+	"strconv"
+	"strings"
 )
 
 type Interview struct {
@@ -20,8 +23,10 @@ type Interview struct {
 	ShowError func(message string)
 	// The questions in the interview.
 	Questions []Question
+	// Whether to quit on an invalid answer
+	QuitOnInvalidAnswer bool
 	// The method to read an answer. Used for testing.
-	ReadAnswer func(question *Question) string
+	ReadAnswer func(question *Question) (string, error)
 }
 
 func showOutput(message string) {
@@ -40,49 +45,98 @@ func (interview *Interview) displayPrompt(question *Question) {
 	interview.ShowOutput(interview.PromptTerminator)
 }
 
-func isValid(text string, regex *regexp.Regexp) bool {
-	if text == "" || regex == nil {
+func isValid(value interface{}, text string, question *Question) bool {
+	if question.AnswerKind == reflect.Bool {
 		return true
 	}
-	return regex.MatchString(text)
+	if question.AnswerKind == reflect.String {
+		length := len(text)
+		if length < question.Minimum || (question.Maximum != 0 && length > question.Maximum) {
+			return false
+		}
+		if question.RegularExpression == nil {
+			return true
+		}
+		return question.RegularExpression.MatchString(text)
+	}
+	if question.AnswerKind == reflect.Int {
+		num := value.(int)
+		if num < question.Minimum || (question.Maximum != 0 && num > question.Maximum) {
+			return false
+		}
+		return true
+	}
+	return false
 }
 
-func readAnswer(question *Question) string {
+func readAnswer(question *Question) (string, error) {
 	answer, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil {
-		// TODO something
+		return answer, err
 	}
 	// Strip off trailing newline
-	return answer[0 : len(answer)-1]
+	return answer[0 : len(answer)-1], nil
 }
 
-func (interview *Interview) getAnswer(question *Question) string {
+func convertAnswer(answer string, kind reflect.Kind) (interface{}, error) {
+	switch kind {
+	case reflect.String:
+		return answer, nil
+	case reflect.Bool:
+		return strings.HasPrefix(strings.ToUpper(answer), "Y"), nil
+	case reflect.Int:
+		return strconv.Atoi(answer)
+	default:
+		return answer, errors.New(fmt.Sprintf("The answer type %v is not supported"))
+	}
+}
+
+func answerOrDefault(answer string, defaultAnswer string) string {
+	if answer == "" && defaultAnswer != "" {
+		return defaultAnswer
+	}
+	return answer
+}
+
+func getErrorMessage(qMessage string, iMessage string) string {
+	if qMessage != "" {
+		return qMessage
+	}
+	return iMessage
+}
+
+func (interview *Interview) getAnswer(question *Question) (interface{}, error) {
 	for {
 		interview.displayPrompt(question)
-		answer := interview.ReadAnswer(question)
-
-		// If they left answer blank and there's a default, set to default
-		if answer == "" && question.DefaultAnswer != "" {
-			answer = question.DefaultAnswer
+		answer, err := interview.ReadAnswer(question)
+		if err != nil {
+			return answer, err
 		}
 
-		// If it's still blank and it's required, show an error and loop back
+		// If they left answer blank and there's a default, set to default
+		answer = answerOrDefault(answer, question.DefaultAnswer)
+
+		// If it's still blank and it's required, show an error
 		if answer == "" && question.Required {
-			if question.RequiredMessage != "" {
-				interview.ShowError(question.RequiredMessage)
-			} else {
-				interview.ShowError(interview.RequiredMessage)
-			}
-		} else if !isValid(answer, question.Validator) {
-			// If answer isn't valid, show an error and loop back
-			if question.InvalidMessage != "" {
-				interview.ShowError(question.InvalidMessage)
-			} else {
-				interview.ShowError(interview.InvalidMessage)
-			}
+			interview.ShowError(getErrorMessage(question.RequiredMessage, interview.RequiredMessage))
 		} else {
-			// We have a valid answer; return it
-			return answer
+			// Convert the answer to the appropriate type
+			converted, err := convertAnswer(answer, question.AnswerKind)
+			if err != nil {
+				return converted, err
+			}
+
+			if !isValid(converted, answer, question) {
+				// If answer isn't valid, show an error
+				interview.ShowError(getErrorMessage(question.InvalidMessage, interview.InvalidMessage))
+			} else {
+				// We have a valid answer; return it
+				return converted, nil
+			}
+		}
+		// Loop if configured to do so
+		if interview.QuitOnInvalidAnswer {
+			return answer, err
 		}
 	}
 }
@@ -98,13 +152,25 @@ func NewInterview() *Interview {
 	}
 }
 
-func (interview *Interview) Run() []string {
-	answers := make([]string, len(interview.Questions))
+func (interview *Interview) Run() ([]interface{}, error) {
+	answers := make([]interface{}, len(interview.Questions))
 	for index, question := range interview.Questions {
-		if question.Text != "" {
-			answer := interview.getAnswer(&question)
-			answers[index] = answer
+		// If they haven't set the answer type, set it to String
+		if question.AnswerKind == reflect.Invalid {
+			question.AnswerKind = reflect.String
+		}
+
+		// If they haven't set the text for a question, return an error
+		if question.Text == "" {
+			return answers, errors.New(fmt.Sprintf("Question %d has no text", index))
+		} else {
+			answer, err := interview.getAnswer(&question)
+			if err == nil {
+				answers[index] = answer
+			} else {
+				return answers, err
+			}
 		}
 	}
-	return answers
+	return answers, nil
 }

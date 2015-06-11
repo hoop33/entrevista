@@ -18,8 +18,10 @@ func Example() {
 			DefaultAnswer: "john.doe@example.com",
 		},
 	}
-	answers := interview.Run()
-	for _, answer := range answers {
-		fmt.Println(answer)
+	answers, err := interview.Run()
+	if err != nil {
+		for _, answer := range answers {
+			fmt.Println(answer)
+		}
 	}
 }
