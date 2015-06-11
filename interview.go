@@ -152,24 +152,29 @@ func NewInterview() *Interview {
 	}
 }
 
-func (interview *Interview) Run() ([]interface{}, error) {
-	answers := make([]interface{}, len(interview.Questions))
+func (interview *Interview) Run() (map[string]interface{}, error) {
+	answers := make(map[string]interface{}, len(interview.Questions))
 	for index, question := range interview.Questions {
 		// If they haven't set the answer type, set it to String
 		if question.AnswerKind == reflect.Invalid {
 			question.AnswerKind = reflect.String
 		}
 
+		// If they haven't set a key, return an error
+		if question.Key == "" {
+			return nil, fmt.Errorf("Question %d has no key", index)
+		}
+
 		// If they haven't set the text for a question, return an error
 		if question.Text == "" {
-			return answers, errors.New(fmt.Sprintf("Question %d has no text", index))
+			return nil, fmt.Errorf("Question %d has no text", index)
+		}
+
+		answer, err := interview.getAnswer(&question)
+		if err == nil {
+			answers[question.Key] = answer
 		} else {
-			answer, err := interview.getAnswer(&question)
-			if err == nil {
-				answers[index] = answer
-			} else {
-				return answers, err
-			}
+			return answers, err
 		}
 	}
 	return answers, nil

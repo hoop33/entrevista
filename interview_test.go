@@ -30,16 +30,18 @@ func TestAnswersGetFilled(t *testing.T) {
 
 	interview.Questions = []entrevista.Question{
 		{
+			Key:  "one",
 			Text: "One",
 		},
 		{
+			Key:  "two",
 			Text: "Two",
 		},
 	}
 	answers, err := interview.Run()
 	assert.Equal(t, err, nil)
-	assert.Equal(t, answers[0], "One")
-	assert.Equal(t, answers[1], "Two")
+	assert.Equal(t, answers["one"], "One")
+	assert.Equal(t, answers["two"], "Two")
 }
 
 func TestDefaultAnswerIsReturnedForBlank(t *testing.T) {
@@ -50,18 +52,20 @@ func TestDefaultAnswerIsReturnedForBlank(t *testing.T) {
 
 	interview.Questions = []entrevista.Question{
 		{
+			Key:           "one",
 			Text:          "One",
 			DefaultAnswer: "First default",
 		},
 		{
+			Key:           "two",
 			Text:          "Two",
 			DefaultAnswer: "Second default",
 		},
 	}
 	answers, err := interview.Run()
 	assert.Equal(t, err, nil)
-	assert.Equal(t, answers[0], "First default")
-	assert.Equal(t, answers[1], "Second default")
+	assert.Equal(t, answers["one"], "First default")
+	assert.Equal(t, answers["two"], "Second default")
 }
 
 func TestBooleansAreReturnedForBooleans(t *testing.T) {
@@ -72,18 +76,20 @@ func TestBooleansAreReturnedForBooleans(t *testing.T) {
 
 	interview.Questions = []entrevista.Question{
 		{
+			Key:        "yes",
 			Text:       "Yes",
 			AnswerKind: reflect.Bool,
 		},
 		{
+			Key:        "no",
 			Text:       "No",
 			AnswerKind: reflect.Bool,
 		},
 	}
 	answers, err := interview.Run()
 	assert.Equal(t, err, nil)
-	assert.Equal(t, answers[0], true)
-	assert.Equal(t, answers[1], false)
+	assert.Equal(t, answers["yes"], true)
+	assert.Equal(t, answers["no"], false)
 }
 
 func TestBooleanAnswersActAsBooleans(t *testing.T) {
@@ -93,13 +99,13 @@ func TestBooleanAnswersActAsBooleans(t *testing.T) {
 	interview.ReadAnswer = MirrorAnswer
 
 	interview.Questions = []entrevista.Question{
-		*entrevista.NewBoolQuestion("yes"),
-		*entrevista.NewBoolQuestion("no"),
+		*entrevista.NewBoolQuestion("yes", "yes"),
+		*entrevista.NewBoolQuestion("no", "no"),
 	}
 	answers, err := interview.Run()
 	assert.Equal(t, err, nil)
-	assert.Equal(t, answers[0], true)
-	assert.Equal(t, answers[1], false)
+	assert.Equal(t, answers["yes"], true)
+	assert.Equal(t, answers["no"], false)
 }
 
 func TestNumbersAreReturnedForNumbers(t *testing.T) {
@@ -110,18 +116,20 @@ func TestNumbersAreReturnedForNumbers(t *testing.T) {
 
 	interview.Questions = []entrevista.Question{
 		{
+			Key:        "1",
 			Text:       "12345",
 			AnswerKind: reflect.Int,
 		},
 		{
+			Key:        "2",
 			Text:       "43",
 			AnswerKind: reflect.Int,
 		},
 	}
 	answers, err := interview.Run()
 	assert.Equal(t, err, nil)
-	assert.Equal(t, answers[0], 12345)
-	assert.Equal(t, answers[1], 43)
+	assert.Equal(t, answers["1"], 12345)
+	assert.Equal(t, answers["2"], 43)
 }
 
 func TestMinAndMaxWorkForNumbers(t *testing.T) {
@@ -132,11 +140,13 @@ func TestMinAndMaxWorkForNumbers(t *testing.T) {
 
 	interview.Questions = []entrevista.Question{
 		{
+			Key:        "max",
 			Text:       "12345",
 			AnswerKind: reflect.Int,
 			Maximum:    99999,
 		},
 		{
+			Key:        "min",
 			Text:       "-43",
 			AnswerKind: reflect.Int,
 			Minimum:    -50,
@@ -144,9 +154,6 @@ func TestMinAndMaxWorkForNumbers(t *testing.T) {
 	}
 	answers, err := interview.Run()
 	assert.Equal(t, err, nil)
-	assert.Equal(t, answers[0], 12345)
-	assert.Equal(t, answers[1], -43)
-}
-
-func TestStringQuestionValidatesLength(t *testing.T) {
+	assert.Equal(t, answers["max"], 12345)
+	assert.Equal(t, answers["min"], -43)
 }

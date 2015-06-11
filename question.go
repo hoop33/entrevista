@@ -7,6 +7,8 @@ import (
 )
 
 type Question struct {
+	// The key for the answer map for the answer. Required.
+	Key string
 	// The text of the question. Required.
 	Text string
 	// The type of the expected answer.
@@ -31,15 +33,17 @@ type Question struct {
 
 var YesNoRegularExpression = regexp.MustCompile("^[YyNn]")
 
-func NewQuestion(text string) *Question {
+func NewQuestion(key string, text string) *Question {
 	return &Question{
+		Key:        key,
 		Text:       text,
 		AnswerKind: reflect.String,
 	}
 }
 
-func NewStringQuestion(text string, minLength int, maxLength int) *Question {
+func NewStringQuestion(key string, text string, minLength int, maxLength int) *Question {
 	return &Question{
+		Key:            key,
 		Text:           text,
 		AnswerKind:     reflect.String,
 		ValidateMinMax: true,
@@ -49,8 +53,9 @@ func NewStringQuestion(text string, minLength int, maxLength int) *Question {
 	}
 }
 
-func NewBoolQuestion(text string) *Question {
+func NewBoolQuestion(key string, text string) *Question {
 	return &Question{
+		Key:               key,
 		Text:              text,
 		AnswerKind:        reflect.Bool,
 		DefaultAnswer:     "no",
@@ -59,15 +64,16 @@ func NewBoolQuestion(text string) *Question {
 	}
 }
 
-func NewNumberQuestion(text string) *Question {
+func NewNumberQuestion(key string, text string) *Question {
 	return &Question{
+		Key:            key,
 		Text:           text,
 		AnswerKind:     reflect.Int,
 		ValidateMinMax: false,
 	}
 }
 
-func NewNumberInRangeQuestion(text string, min int, max int) *Question {
+func NewNumberInRangeQuestion(key string, text string, min int, max int) *Question {
 	return &Question{
 		Text:           text,
 		AnswerKind:     reflect.Int,
