@@ -29,6 +29,8 @@ type Question struct {
 	RequiredMessage string
 	// The error message to display if the answer is invalid.
 	InvalidMessage string
+	// Whether the response should be hidden when typed
+	Hidden bool
 }
 
 var YesNoRegularExpression = regexp.MustCompile("^[YyNn]")

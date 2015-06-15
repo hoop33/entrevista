@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/dgiagio/getpass"
 )
 
 type Interview struct {
@@ -70,12 +72,16 @@ func isValid(value interface{}, text string, question *Question) bool {
 }
 
 func readAnswer(question *Question) (string, error) {
-	answer, err := bufio.NewReader(os.Stdin).ReadString('\n')
-	if err != nil {
-		return answer, err
+	if question.Hidden {
+		return getpass.GetPassword("")
+	} else {
+		answer, err := bufio.NewReader(os.Stdin).ReadString('\n')
+		if err != nil {
+			return "", err
+		}
+		// Strip off trailing newline
+		return answer[0 : len(answer)-1], nil
 	}
-	// Strip off trailing newline
-	return answer[0 : len(answer)-1], nil
 }
 
 func convertAnswer(answer string, kind reflect.Kind) (interface{}, error) {
