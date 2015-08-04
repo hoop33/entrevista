@@ -26,11 +26,9 @@ func Example() {
 	answers, err := interview.Run()
 
 	if err == nil {
-		for key, answer := range answers {
-			fmt.Print(key, ":", answer, ";")
-		}
+		fmt.Print(answers["name"], ",", answers["email"])
 	} else {
 		fmt.Print(err.Error())
 	}
-	// Output: Enter your name: Enter your email address (john.doe@example.com): name:name;email:email;
+	// Output: Enter your name: Enter your email address (john.doe@example.com): name,email
 }
