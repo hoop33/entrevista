@@ -2,7 +2,6 @@ package entrevista
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 	"reflect"
@@ -12,6 +11,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+// Interview contains all the questions and configuration to conduct an interview
 type Interview struct {
 	// The string to show at the end of questions. Default is ":".
 	PromptTerminator string
@@ -76,14 +76,14 @@ func readAnswer(question *Question) (string, error) {
 		password, err := terminal.ReadPassword(0)
 		fmt.Println()
 		return string(password), err
-	} else {
-		answer, err := bufio.NewReader(os.Stdin).ReadString('\n')
-		if err != nil {
-			return "", err
-		}
-		// Strip off trailing newline
-		return answer[0 : len(answer)-1], nil
 	}
+
+	answer, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	// Strip off trailing newline
+	return answer[0 : len(answer)-1], nil
 }
 
 func convertAnswer(answer string, kind reflect.Kind) (interface{}, error) {
@@ -95,7 +95,7 @@ func convertAnswer(answer string, kind reflect.Kind) (interface{}, error) {
 	case reflect.Int:
 		return strconv.Atoi(answer)
 	default:
-		return answer, errors.New(fmt.Sprintf("The answer type %v is not supported"))
+		return answer, fmt.Errorf("The answer type %v is not supported", kind)
 	}
 }
 
@@ -149,6 +149,7 @@ func (interview *Interview) getAnswer(question *Question) (interface{}, error) {
 	}
 }
 
+// NewInterview creates a new interview with sane defaults
 func NewInterview() *Interview {
 	return &Interview{
 		PromptTerminator: ": ",
@@ -160,6 +161,7 @@ func NewInterview() *Interview {
 	}
 }
 
+// Run conducts an interview
 func (interview *Interview) Run() (map[string]interface{}, error) {
 	answers := make(map[string]interface{}, len(interview.Questions))
 	for index, question := range interview.Questions {
