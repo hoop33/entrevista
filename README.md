@@ -1,22 +1,34 @@
-# entrevista
+# Entrevista
 
 > A question-and-answer command-line prompt for go
 
-## Overview
+## Table of Contents
 
-`entrevista` is a go library for conducting a question-and-answer interview from the command line. It supports validation, different return types, and default responses.
+* [Introduction](#introduction)
+* [Installation](#installation)
+* [Usage](#usage)
+  * [Questions](#questions)
+  * [Interviews](#interviews)
+  * [Color](#color)
+* [Contributing](#contributing)
+* [Credits](#credits)
+* [License](#license)
+
+## Introduction
+
+Entrevista is a Go library for conducting a question-and-answer interview from the command line. It supports validation, different return types, hidden entries, and default responses.
 
 ## Installation
 
-```
-$ go get github.com/hoop33/entrevista
+```sh
+$ go get -u github.com/hoop33/entrevista
 ```
 
 ## Usage
 
 To conduct an interview, you create an interview, add some questions, and run the interview, like this:
 
-``` golang
+```golang
 import (
 	"fmt"
 
@@ -34,7 +46,7 @@ interview.Questions = []entrevista.Question{
 }
 answers := interview.Run()
 fmt.Println(answers["name"].(string))
-fmt.Println(strconv.FormaBool(answers["like"].(bool)))
+fmt.Println(strconv.FormatBool(answers["like"].(bool)))
 ```
 
 ### Questions
@@ -52,6 +64,7 @@ Questions have the following fields:
 * `Maximum` -- `int` -- the maximum (length for a string, value for a number)
 * `RequiredMessage` -- `string` -- the error message to display if the answer is required and not supplied.
 * `InvalidMessage` -- `string` -- the error message to display if the answer is invalid.
+* `Hidden` -- `bool` -- whether to hide the answer.
 
 The minimum required fields are `Key` and `Text`.
 
@@ -76,11 +89,11 @@ You can customize a few things on interviews as well:
 * `QuitOnInvalidAnswer` -- `bool` -- whether to stop the interview on an invalid answer.
 * `ReadAnswer` -- `func(question *Question) (string, error)` -- the method to use to read an answer. Useful for testing or automation.
 
-### I Want Color!
+### Color
 
 Although the default interview displays in black and white, you can easily change the output to use color using the color library of your choosing. Say, for example, you wanted to use (https://github.com/mgutz/ansi)[https://github.com/mgutz/ansi] to display questions in green and errors in bold red. You would do something like this:
 
-``` golang
+```golang
 import (
 	"fmt"
 
@@ -92,15 +105,27 @@ interview := entrevista.NewInterview()
 interview.ShowOutput = func(message string) {
 	fmt.Print(ansi.ColorFunc("green")(message))
 }
-interview.ShowError = func (message string) {
+interview.ShowError = func(message string) {
 	fmt.Println(ansi.ColorFunc("red+b")(message))
 }
 ```
 
-## License
-
-`entrevista` is released under the MIT License.
-
 ## Contributing
 
-Fork and submit pull requests.
+Please note that this project is released with a [Contributor Code of Conduct](http://contributor-covenant.org/). By participating in this project you agree to abide by its terms. See [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md) file.
+
+Contributions are welcome! Please open pull requests with code that passes all the checks.
+
+## Credits
+
+Entrevista uses the following open source libraries -- thank you!
+
+* [gopass](https://github.com/howeyc/gopass)
+
+Apologies if I've inadvertently omitted any library or any contributor.
+
+## License
+
+Copyright &copy; 2015 Rob Warner
+
+Licensed under the [MIT License](https://hoop33.mit-license.org/)
