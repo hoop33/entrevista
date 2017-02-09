@@ -2,11 +2,37 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/howeyc/gopass",
+			"repository": "https://github.com/howeyc/gopass",
+			"vcs": "git",
+			"revision": "bf9dde6d0d2c004a008c27aaee91170c786f6db8",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/stretchr/testify",
 			"repository": "https://github.com/stretchr/testify",
 			"vcs": "git",
 			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
 			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/crypto/ssh/terminal",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "dd96d35c1b251a7ef77f057fc5c4f92ea2b285b4",
+			"branch": "master",
+			"path": "/ssh/terminal",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/sys/unix",
+			"repository": "https://go.googlesource.com/sys",
+			"vcs": "git",
+			"revision": "7a6e5648d140666db5d920909e082ca00a87ba2c",
+			"branch": "master",
+			"path": "/unix",
 			"notests": true
 		}
 	]

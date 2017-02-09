@@ -1,14 +1,12 @@
 package entrevista
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"reflect"
 	"strconv"
 	"strings"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"github.com/howeyc/gopass"
 )
 
 // Interview contains all the questions and configuration to conduct an interview
@@ -73,17 +71,14 @@ func isValid(value interface{}, text string, question *Question) bool {
 
 func readAnswer(question *Question) (string, error) {
 	if question.Hidden {
-		password, err := terminal.ReadPassword(0)
+		password, err := gopass.GetPasswd()
 		fmt.Println()
 		return string(password), err
 	}
 
-	answer, err := bufio.NewReader(os.Stdin).ReadString('\n')
-	if err != nil {
-		return "", err
-	}
-	// Strip off trailing newline
-	return answer[0 : len(answer)-1], nil
+	var answer string
+	fmt.Scanln(&answer)
+	return answer, nil
 }
 
 func convertAnswer(answer string, kind reflect.Kind) (interface{}, error) {
