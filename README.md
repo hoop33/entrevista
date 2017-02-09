@@ -121,6 +121,7 @@ Contributions are welcome! Please open pull requests with code that passes all t
 Entrevista uses the following open source libraries -- thank you!
 
 * [gopass](https://github.com/howeyc/gopass)
+* [Testify](https://github.com/stretchr/testify)
 
 Apologies if I've inadvertently omitted any library or any contributor.
 
